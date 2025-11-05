@@ -1,8 +1,7 @@
-#include <iostream>
-
+#include <iostream
 using namespace std;
-
-class Shallow {
+class Shallow 
+{
 public:
     int i;
     int *ip; // Pointer to dynamically allocated memory
@@ -70,91 +69,6 @@ int main() {
     // CRASH occurs here: Both destructors will try to delete the same memory address!
     return 0;
 }
-
-
-Your explanation of the concept of shallow copy was correct, but the program structure and the details of the explanation needed refinement to accurately reflect the C++ behavior and the resulting error.
-
-Here is the corrected program that demonstrates the problem, followed by the correct explanation based on the revised code.
-
-🛠️ Corrected C++ Program
-The class now includes a destructor and the display function is corrected to show the shared heap address.
-
-C++
-
-#include <iostream>
-
-using namespace std;
-
-class Shallow {
-private:
-    int i;
-    int *ip; // Pointer to dynamically allocated memory
-
-public:
-    // Default Constructor
-    Shallow() : i(0), ip(nullptr) {
-        cout << "Default constructor" << endl;
-    }
-
-    // Parameterized Constructor
-    Shallow(int a) : i(a) {
-        cout << "Parameterized constructor" << endl;
-        // Allocate memory on the heap and store a dummy value
-        ip = new int; 
-        *ip = 500 + a; 
-    }
-
-    // Destructor (Crucial for demonstrating the double-free error)
-    ~Shallow() {
-        if (ip != nullptr) {
-            cout << "Destructor freeing memory at: " << ip << endl;
-            delete ip; // Clean up the dynamically allocated int
-            ip = nullptr; // Set pointer to null after deletion
-        }
-    }
-
-    // Corrected display to show the shared heap address
-    void display() {
-        cout << "Object value (i): " << i 
-             << ", Pointer value (ip): " << ip 
-             << ", Data at *ip: " << (ip ? *ip : 0) << endl;
-    }
-};
-
-int main() {
-    cout << "--- Initial Objects ---" << endl;
-    Shallow obj;        // Default constructor
-    Shallow obj1(10);   // Parameterized constructor (Allocates memory, e.g., at 12345)
-    
-    cout << "\n--- Before Copy Assignment ---" << endl;
-    obj1.display();
-
-    // The shallow copy occurs here via the default Copy Assignment Operator
-    obj = obj1;
-    
-    cout << "\n--- After Shallow Copy Assignment ---" << endl;
-    cout << "obj's state:" << endl;
-    obj.display();
-    cout << "obj1's state:" << endl;
-    obj1.display();
-    
-    // Demonstrate shared modification
-    if (obj.ip != nullptr) {
-        *(obj.ip) = 999; // Change data through obj's pointer
-    }
-    
-    cout << "\n--- After Modification via obj ---" << endl;
-    cout << "obj's state:" << endl;
-    obj.display();
-    cout << "obj1's state:" << endl;
-    obj1.display();
-    
-    cout << "\n--- Program Ending (Destructors Run) ---" << endl;
-    // CRASH occurs here: Both destructors will try to delete the same memory address!
-    return 0;
-}
-
-
 
 📝 Correct Explanation of Shallow Copy
 The explanation of shallow copy according to the corrected program and C++ rules is as follows:
